@@ -1,10 +1,10 @@
 import os
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 load_dotenv()
 
 key=os.getenv('google_api_key')
-genai.configure(api_key=key)
+genai.Client(api_key=key)
 
 model=genai.GenerativeModel('gemini-2.5-flash-lite')
 
