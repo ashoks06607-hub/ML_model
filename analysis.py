@@ -1,24 +1,53 @@
 import os
 from google import genai
 from dotenv import load_dotenv
+
 load_dotenv()
 
-key=os.getenv('google_api_key')
-genai.Client(api_key=key)
+key = os.getenv("GOOGLE_API_KEY")
 
-model=genai.GenerativeModel('gemini-2.5-flash-lite')
+client = genai.Client(api_key=key)
+
 
 def generate_code(results_df):
-    prompt=f'''You are a data scientist expert. Here are a few rows of a dataset and the results of some machine learning models on that dataset. Please analyze the results and suggest which model is best for this dataset and why.1. identify the best model, 2. explain why it is the best model, 3. suggest any improvements that can be made to the models or the dataset to achieve better results.'''
-    response=model.generate_content(prompt)
-    return response.text 
+    prompt = f"""
+You are a data scientist expert.
+
+Dataset results:
+{results_df.head(10).to_string()}
+
+Tasks:
+1. Identify best model
+2. Explain why
+3. Suggest improvements
+"""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
+        return response.text
+    except Exception as e:
+        return f"Error: {e}"
+
 
 def suggest_improvements(results_df):
-    prompt=f'''You are a data scientist expert. Here are the model results: 
-    {results_df.to_string()}
-    Suggestion: 
-    - Identify the best model based on the results.
-    - Explain why it is the best model.
-    - Suggest any improvements that can be made to the models or the dataset to achieve better results.'''
-    response=model.generate_content(prompt)
-    return response.text
+    prompt = f"""
+Model results:
+{results_df.head(10).to_string()}
+
+Give:
+- Best model
+- Reason
+- Improvements
+"""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
+        return response.text
+    except Exception as e:
+        return f"Error: {e}"
